@@ -1,16 +1,17 @@
 #include <math.h>
 #include "AdafruitIO_WiFi.h"
 
-// #define WIFI_SSID "Malu"
+// #define WIFI_SSID "malu"
 // #define WIFI_PASS "..."
 
-// // Autenticação Adafruit IO
-// #define IO_USERNAME "Malu13"
-// #define IO_KEY "..."
+ //Autenticação Adafruit IO
+// #define IO_USERNAME  "Malu13"
+// #define IO_KEY       "..."
 
 AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
-#define pinNTC 34
+#define pinNTC 34  // pino ADC
+#define pinLed 14  // pino do LED
 
 // Controle de envio de dados
 float temp_atual = 0;
@@ -25,42 +26,29 @@ const float R0 = 10000.0;        // nominal do ntc
 const float T0_kelvin = 298.15;  // 25 graus ceusius
 const float Vcc = 3.3;
 
-float lerTemperaturaNTC(int pino, int numLeituras) {
-  long somaLeituras = 0;
-
-  for (int i = 0; i < numLeituras; i++) {
-    somaLeituras += analogRead(pino);
-    delay(5);
-  }
-
-  float leituraMedia = somaLeituras / (float)numLeituras;
-
-  float Vout = leituraMedia * (Vcc / 4095.0);
-
-  float Rntc = Rfixo * ((Vcc / Vout) - 1.0);
-
-  float tempK = 1.0 / ((1.0 / T0_kelvin) + (1.0 / Beta) * log(Rntc / R0));
-
-  return tempK - 273.15;
-}
-
 void setup() {
-  pinMode(pinNTC, INPUT);
-
   Serial.begin(115200);
+  pinMode(pinNTC, INPUT);
+  pinMode(pinLed, OUTPUT);
 
-  while(!Serial);
+  while (!Serial)
+    ;
 
   Serial.print("Conectando ao Adafruit IO");
   io.connect();
 
-  while(io.status() < AIO_CONNECTED){
+  while (io.status() < AIO_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
 
-  Serial.println();
-  Serial.println(io.statusText());
+  // Serial.println();
+  // Serial.println(io.statusText());
+
+  // Configuração do callback, quando o feed receber um valor(atualizar) um valor
+  //temperatura -> onMessage(handleTemperatura);
+  // registra a função de callback
+  // ela será chamada sempre que o feed receber um novo dado
 
   delay(1000);
 }
@@ -68,26 +56,9 @@ void setup() {
 void loop() {
 
   //Manter a conexão com o Adafruit IO ativa
-  io.run();
+  //io.run();
 
-  temp_atual = lerTemperaturaNTC(pinNTC, 10);
-
-  //verificando alteração na temperatura
-  if (temp_atual == temp_anterior){
-    return;
-  }
-
-  //Serial.print("Temperatura Analogica: ");
-  //Serial.println(analogRead(pinNTC));
-
-  Serial.print(F("Temperatura enviada: "));
-  Serial.print(temp_atual, 2);
-  Serial.println(F("°C"));
-
-  // envio / registro no feed "temperatura" no Adafruit IO
-  temperatura -> save(temp_atual);
-
-  temp_anterior = temp_atual;
-
-  delay(3000);
+  publicacao(); //chamada da função publish
+  
+  delay(7000);
 }
