@@ -1,10 +1,10 @@
 #include "AdafruitIO_WiFi.h"
 
 #define WIFI_SSID     "Malu"
-#define WIFI_PASS     "13061306"
+#define WIFI_PASS     "13131313"
 
 #define IO_USERNAME   "Malu13"
-#define IO_KEY        "aio_ddLF19TQc02rJthm7iLIQzdjrFEn"
+#define IO_KEY        "aio_MMpF58kDdvvBXbazZcGuOSNc1wra"
 
 // Cria conexão com Adafruit IO
 AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
